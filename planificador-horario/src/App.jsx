@@ -1,25 +1,22 @@
-import logo from './assets/image/logo.svg';
-import styles from './App.module.css'; // ✅ Importación correcta
+// src/App.jsx
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { useState } from 'react';
+import { Home } from './pages/Home';  // Asegúrate que coincida con el nombre del archivo
+import { Login } from './pages/Login';
+import { Dashboard } from './pages/Dashboard';
 
-function App() {
+function App() { // <- Componente principal
+  const [user, setUser] = useState(null);
+
   return (
-    <div className={styles.App}> {/* ✅ Notación de objeto */}
-      <header className={styles['App-header']}> {/* ✅ Para clases con guión */}
-        <img src={logo} className={styles['App-logo']} alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className={styles['App-link']}
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login setUser={setUser} />} />
+        <Route path="/dashboard" element={<Dashboard user={user} setUser={setUser} />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
-export default App;
+export default App; // <- Exportación default (clave)*-
