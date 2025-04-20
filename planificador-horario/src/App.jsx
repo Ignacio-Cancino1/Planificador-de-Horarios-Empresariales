@@ -5,6 +5,10 @@ import { Home } from './pages/Homee';  // Asegúrate que coincida con el nombre 
 import { Login } from './pages/Login';
 import { Dashboard } from './pages/Dashboard';
 import { Employees } from './pages/Employees';
+import { EmployeeProfile } from './pages/EmployeeProfile';
+
+// Dentro de tu componente <Routes>
+<Route path="/empleados/:id" element={<EmployeeProfile />} />
 
 function App() {
   const [user, setUser] = useState(null); // Ahora user será un objeto { email }
@@ -24,6 +28,9 @@ function App() {
         <Route 
           path="/empleados"
           element={<Employees />} />
+        <Route
+          path="/empleados/:id"
+          element={<EmployeeProfile />} />
       </Routes>
     </BrowserRouter>
   );
