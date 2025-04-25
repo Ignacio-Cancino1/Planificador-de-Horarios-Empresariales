@@ -1,8 +1,8 @@
 // src/pages/Employees.jsx
-import { useState } from 'react';
-import { FaUser, FaEye } from 'react-icons/fa';
-import { useNavigate } from 'react-router-dom';
-import styles from './Employees.module.css';
+import { useState } from "react";
+import { FaUser, FaEye, FaArrowLeft } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
+import styles from "./Employees.module.css";
 
 export const Employees = () => {
   const navigate = useNavigate();
@@ -16,7 +16,7 @@ export const Employees = () => {
       email: "ana@empresa.com",
       telefono: "+56912345678",
       rol: "Gerente",
-      estado: "Activo"
+      estado: "Activo",
     },
     {
       id: 2,
@@ -25,7 +25,7 @@ export const Employees = () => {
       email: "carlos@empresa.com",
       telefono: "+56987654321",
       rol: "Cajero",
-      estado: "Activo"
+      estado: "Activo",
     },
     {
       id: 3,
@@ -34,8 +34,8 @@ export const Employees = () => {
       email: "maria@empresa.com",
       telefono: "+56955551234",
       rol: "Supervisor",
-      estado: "Inactivo"
-    }
+      estado: "Inactivo",
+    },
   ];
 
   const [employees] = useState(employeesData);
@@ -47,7 +47,13 @@ export const Employees = () => {
   return (
     <div className={styles.container}>
       <header className={styles.header}>
-        <h1><FaUser /> Lista de Empleados</h1>
+        {/* Botón de volver */}
+        <button onClick={() => navigate(-1)} className={styles.backButton}>
+          <FaArrowLeft /> Volver
+        </button>
+        <h1>
+          <FaUser /> Lista de Empleados
+        </h1>
       </header>
 
       <div className={styles.tableContainer}>
@@ -68,7 +74,7 @@ export const Employees = () => {
             {employees.map((employee) => (
               <tr key={employee.id}>
                 <td>
-                  <button 
+                  <button
                     onClick={() => handleViewProfile(employee.id)}
                     className={styles.profileButton}
                     aria-label={`Ver perfil de ${employee.nombre}`}
@@ -83,9 +89,13 @@ export const Employees = () => {
                 <td>{employee.telefono}</td>
                 <td>{employee.rol}</td>
                 <td>
-                  <span className={`${styles.status} ${
-                    employee.estado === 'Activo' ? styles.active : styles.inactive
-                  }`}>
+                  <span
+                    className={`${styles.status} ${
+                      employee.estado === "Activo"
+                        ? styles.active
+                        : styles.inactive
+                    }`}
+                  >
                     {employee.estado}
                   </span>
                 </td>

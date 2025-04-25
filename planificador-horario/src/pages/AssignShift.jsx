@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './AssignShift.module.css';
+import { FaArrowLeft } from 'react-icons/fa';
 
 // Datos simulados
 const mockEmployees = [
@@ -55,6 +56,9 @@ export const AssignShift = () => {
 
   return (
     <div className={styles.container}>
+      <button onClick={() => navigate(-1)} className={styles.backButton}>
+        <FaArrowLeft /> Volver
+      </button>
       <h1>Asignar Nuevo Turno</h1>
       
       <form onSubmit={handleSubmit} className={styles.form}>

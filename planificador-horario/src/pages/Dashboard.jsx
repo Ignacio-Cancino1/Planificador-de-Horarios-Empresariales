@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import styles from './Dashboard.module.css';
 import { FaUsers, FaSignOutAlt } from 'react-icons/fa'; // Añadimos ícono
 
+
 export const Dashboard = ({ user, setUser }) => {
   const navigate = useNavigate();
 
