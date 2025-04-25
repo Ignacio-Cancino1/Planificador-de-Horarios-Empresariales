@@ -6,6 +6,7 @@ import { Login } from './pages/Login';
 import { Dashboard } from './pages/Dashboard';
 import { Employees } from './pages/Employees';
 import { EmployeeProfile } from './pages/EmployeeProfile';
+import { AssignShift } from './pages/AssignShift';
 
 // Dentro de tu componente <Routes>
 <Route path="/empleados/:id" element={<EmployeeProfile />} />
@@ -31,6 +32,9 @@ function App() {
         <Route
           path="/empleados/:id"
           element={<EmployeeProfile />} />
+        <Route
+          path="/asignar-turno"
+          element={<AssignShift />} />
       </Routes>
     </BrowserRouter>
   );

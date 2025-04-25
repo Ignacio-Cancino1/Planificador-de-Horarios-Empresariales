@@ -14,6 +14,10 @@ export const Dashboard = ({ user, setUser }) => {
   const handleViewEmployees = () => {
     navigate('/empleados'); // Redirige a la lista de empleados
   };
+  
+  const handleAssignShift = () => {
+    navigate('/asignar-turno');
+  };
 
   return (
     <div className={styles.dashboard}>
@@ -21,7 +25,9 @@ export const Dashboard = ({ user, setUser }) => {
       <p>Aquí podrás gestionar los horarios de tu equipo.</p>
       
       <div className={styles.quickActions}>
-        <button>Crear horario</button>
+      <button onClick={handleAssignShift}>
+           Asignar Turno
+      </button>
         <button onClick={handleViewEmployees}>
           <FaUsers /> Ver empleados {/* Ícono + texto */}
         </button>
