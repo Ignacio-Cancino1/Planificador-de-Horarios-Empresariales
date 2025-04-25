@@ -7,6 +7,7 @@ import { Dashboard } from './pages/Dashboard';
 import { Employees } from './pages/Employees';
 import { EmployeeProfile } from './pages/EmployeeProfile';
 import { AssignShift } from './pages/AssignShift';
+import { ShiftCalendar } from './pages/ShiftCalendar';
 
 // Dentro de tu componente <Routes>
 <Route path="/empleados/:id" element={<EmployeeProfile />} />
@@ -35,6 +36,9 @@ function App() {
         <Route
           path="/asignar-turno"
           element={<AssignShift />} />
+        <Route
+          path="/calendario-turnos"
+          element={<ShiftCalendar />} />
       </Routes>
     </BrowserRouter>
   );
