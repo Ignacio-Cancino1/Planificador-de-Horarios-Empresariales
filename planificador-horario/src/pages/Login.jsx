@@ -8,21 +8,36 @@ export const Login = ({ setUser }) => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  // Usuario y contraseña ficticios
-  const mockUser = {
-    email: "admin@gmail.com",
-    password: "2633" // Contraseña de ejemplo
-  };
+  const mockUsers = [
+    {
+      email: "admin@gmail.com",
+      password: "2633",
+      role: "admin"
+    },
+    {
+      email: "user@gmail.com",
+      password: "1234",
+      role: "user"
+    }
+  ];
 
   const handleSubmit = (e) => {
     e.preventDefault();
     
-    // Validación simulada
-    if (username === mockUser.email && password === mockUser.password) {
-      setUser({ email: username }); // Guarda el usuario en el estado global
-      navigate('/dashboard'); // Redirige al dashboard
+    const foundUser = mockUsers.find(
+      user => user.email === username && user.password === password
+    );
+
+    if (foundUser) {
+      const userData = { 
+        email: foundUser.email,
+        role: foundUser.role 
+      };
+      setUser(userData);
+      localStorage.setItem('user', JSON.stringify(userData));
+      navigate(foundUser.role === 'admin' ? '/dashboard' : '/user-dashboard');
     } else {
-      setError('Credenciales incorrectas'); // Mensaje de error
+      setError('Credenciales incorrectas');
     }
   };
 
