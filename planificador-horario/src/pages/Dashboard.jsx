@@ -1,7 +1,7 @@
 // src/pages/Dashboard.jsx
 import { useNavigate } from 'react-router-dom';
 import styles from './Dashboard.module.css';
-import { FaUsers, FaSignOutAlt } from 'react-icons/fa'; // Añadimos ícono
+import { FaUsers, FaSignOutAlt,FaChartBar } from 'react-icons/fa'; // Añadimos ícono
 
 
 export const Dashboard = ({ user, setUser }) => {
@@ -22,6 +22,9 @@ export const Dashboard = ({ user, setUser }) => {
   const handleViewCalendar = () => {
     navigate('/calendario-turnos');
   };
+  const handleViewReports = () => {
+    navigate('/reportes');
+  };
 
   return (
     <div className={styles.dashboard}>
@@ -37,6 +40,9 @@ export const Dashboard = ({ user, setUser }) => {
       </button>
         <button onClick={handleViewEmployees}>
           <FaUsers /> Ver empleados {/* Ícono + texto */}
+      </button>
+      <button onClick={handleViewReports} className={styles.reportButton}>
+          <FaChartBar /> Ver Reportes
       </button>
       </div>
 
