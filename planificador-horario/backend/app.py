@@ -1,16 +1,19 @@
-# backend/app.py
-
 from flask import Flask
+from flask_cors import CORS
 from config import Config
 from models.models import db
+from routes.usuarios import usuarios_bp
 
 app = Flask(__name__)
 app.config.from_object(Config)
 db.init_app(app)
+CORS(app)  # Habilita CORS para conexión con React
 
-# Crear las tablas si no existen
 with app.app_context():
     db.create_all()
+
+# Rutas
+app.register_blueprint(usuarios_bp)
 
 @app.route("/")
 def index():
