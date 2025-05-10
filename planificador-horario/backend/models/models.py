@@ -37,3 +37,10 @@ class Turno(db.Model):
     hora_fin = db.Column(db.Time, nullable=False)
     descripcion = db.Column(db.Text)
 
+class Asignacion(db.Model):
+    __tablename__ = 'asignacion'
+
+    id_asignacion = db.Column(db.Integer, primary_key=True)
+    id_empleado = db.Column(db.Integer, db.ForeignKey('empleados.id_empleado'))
+    id_turno = db.Column(db.Integer, db.ForeignKey('turno.id_turno'))
+    fecha_asignacion = db.Column(db.DateTime)
