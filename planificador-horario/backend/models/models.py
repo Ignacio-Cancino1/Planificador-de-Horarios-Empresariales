@@ -63,3 +63,12 @@ class Notificacion(db.Model):
     mensaje = db.Column(db.Text)
     fecha_envio = db.Column(db.DateTime)
 
+class Reporte(db.Model):
+    __tablename__ = 'reporte'
+
+    id_reporte = db.Column(db.Integer, primary_key=True)
+    id_empleado = db.Column(db.Integer, db.ForeignKey('empleados.id_empleado'))
+    tipo_reporte = db.Column(db.Text)
+    fecha_generacion = db.Column(db.DateTime)
+    contenido = db.Column(db.Text)
+
