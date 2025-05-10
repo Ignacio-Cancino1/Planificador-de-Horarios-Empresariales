@@ -2,13 +2,13 @@
 
 from flask import Blueprint, request, jsonify
 from models.models import db, Empleado
-from middlewares.auth import token_required
+from middlewares.auth import token_required, admin_required
 
 empleados_bp = Blueprint('empleados', __name__)
 
 # Obtener todos los empleados
 @empleados_bp.route('/api/empleados', methods=['GET'])
-@token_required
+@admin_required
 def get_empleados():
     empleados = Empleado.query.all()
     resultado = []
@@ -25,7 +25,7 @@ def get_empleados():
 
 # Obtener un solo empleado por ID
 @empleados_bp.route('/api/empleados/<int:id>', methods=['GET'])
-@token_required
+@admin_required
 def get_empleado(id):
     empleado = Empleado.query.get_or_404(id)
     return jsonify({
@@ -39,7 +39,7 @@ def get_empleado(id):
 
 # Crear un nuevo empleado
 @empleados_bp.route('/api/empleados', methods=['POST'])
-@token_required
+@admin_required
 def crear_empleado():
     data = request.get_json()
     nuevo_empleado = Empleado(
@@ -55,7 +55,7 @@ def crear_empleado():
 
 # Actualizar un empleado existente
 @empleados_bp.route('/api/empleados/<int:id>', methods=['PUT'])
-@token_required
+@admin_required
 def actualizar_empleado(id):
     data = request.get_json()
     empleado = Empleado.query.get_or_404(id)
@@ -69,7 +69,7 @@ def actualizar_empleado(id):
 
 # Eliminar un empleado
 @empleados_bp.route('/api/empleados/<int:id>', methods=['DELETE'])
-@token_required
+@admin_required
 def eliminar_empleado(id):
     empleado = Empleado.query.get_or_404(id)
     db.session.delete(empleado)

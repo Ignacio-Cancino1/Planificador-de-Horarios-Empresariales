@@ -2,13 +2,13 @@
 
 from flask import Blueprint, request, jsonify
 from models.models import db, Turno
-from middlewares.auth import token_required
+from middlewares.auth import token_required, admin_required
 
 turnos_bp = Blueprint('turnos', __name__)
 
 # Obtener todos los turnos
 @turnos_bp.route('/api/turnos', methods=['GET'])
-@token_required
+@admin_required
 def get_turnos():
     turnos = Turno.query.all()
     resultado = []
@@ -24,7 +24,7 @@ def get_turnos():
 
 # Obtener un turno por ID
 @turnos_bp.route('/api/turnos/<int:id>', methods=['GET'])
-@token_required
+@admin_required
 def get_turno(id):
     turno = Turno.query.get_or_404(id)
     return jsonify({
@@ -37,7 +37,7 @@ def get_turno(id):
 
 # Crear un nuevo turno
 @turnos_bp.route('/api/turnos', methods=['POST'])
-@token_required
+@admin_required
 def crear_turno():
     data = request.get_json()
     nuevo_turno = Turno(
@@ -52,7 +52,7 @@ def crear_turno():
 
 # Actualizar un turno existente
 @turnos_bp.route('/api/turnos/<int:id>', methods=['PUT'])
-@token_required
+@admin_required
 def actualizar_turno(id):
     data = request.get_json()
     turno = Turno.query.get_or_404(id)
@@ -65,7 +65,7 @@ def actualizar_turno(id):
 
 # Eliminar un turno
 @turnos_bp.route('/api/turnos/<int:id>', methods=['DELETE'])
-@token_required
+@admin_required
 def eliminar_turno(id):
     turno = Turno.query.get_or_404(id)
     db.session.delete(turno)

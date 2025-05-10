@@ -2,13 +2,13 @@
 
 from flask import Blueprint, request, jsonify
 from models.models import db, Asignacion, Empleado, Turno
-from middlewares.auth import token_required
+from middlewares.auth import token_required, admin_required
 
 asignaciones_bp = Blueprint('asignaciones', __name__)
 
 # Obtener todas las asignaciones
 @asignaciones_bp.route('/api/asignaciones', methods=['GET'])
-@token_required
+@admin_required
 def get_asignaciones():
     asignaciones = Asignacion.query.all()
     resultado = []
@@ -23,7 +23,7 @@ def get_asignaciones():
 
 # Obtener una asignación por ID
 @asignaciones_bp.route('/api/asignaciones/<int:id>', methods=['GET'])
-@token_required
+@admin_required
 def get_asignacion(id):
     a = Asignacion.query.get_or_404(id)
     return jsonify({
@@ -35,13 +35,12 @@ def get_asignacion(id):
 
 # Crear una nueva asignación
 @asignaciones_bp.route('/api/asignaciones', methods=['POST'])
-@token_required
+@admin_required
 def crear_asignacion():
     data = request.get_json()
     id_empleado = data['id_empleado']
     id_turno = data['id_turno']
 
-    # Validar que existan empleado y turno
     if not db.session.get(Empleado, id_empleado):
         return jsonify({'error': 'Empleado no encontrado'}), 404
 
@@ -59,7 +58,7 @@ def crear_asignacion():
 
 # Actualizar una asignación
 @asignaciones_bp.route('/api/asignaciones/<int:id>', methods=['PUT'])
-@token_required
+@admin_required
 def actualizar_asignacion(id):
     data = request.get_json()
     asignacion = Asignacion.query.get_or_404(id)
@@ -71,7 +70,7 @@ def actualizar_asignacion(id):
 
 # Eliminar una asignación
 @asignaciones_bp.route('/api/asignaciones/<int:id>', methods=['DELETE'])
-@token_required
+@admin_required
 def eliminar_asignacion(id):
     asignacion = Asignacion.query.get_or_404(id)
     db.session.delete(asignacion)
