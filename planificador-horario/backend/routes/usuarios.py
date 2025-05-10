@@ -3,6 +3,9 @@
 from flask import Blueprint, request, jsonify
 from models.models import db, Usuario, Empleado
 import bcrypt
+import jwt
+import datetime
+from middlewares.auth import SECRET_KEY
 
 usuarios_bp = Blueprint('usuarios', __name__)
 
@@ -53,9 +56,15 @@ def login():
     if not usuario or not bcrypt.checkpw(password.encode('utf-8'), usuario.password_hash.encode('utf-8')):
         return jsonify({'error': 'Credenciales inválidas'}), 401
 
+    # Crear el token JWT
+    token = jwt.encode({
+        'id_usuario': usuario.id_usuario,
+        'id_empleado': usuario.id_empleado,
+        'rol': usuario.rol,
+        'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=2)
+    }, SECRET_KEY, algorithm="HS256")
+
     return jsonify({
         'mensaje': 'Inicio de sesión exitoso',
-        'rol': usuario.rol,
-        'id_usuario': usuario.id_usuario,
-        'id_empleado': usuario.id_empleado
+        'token': token
     })
