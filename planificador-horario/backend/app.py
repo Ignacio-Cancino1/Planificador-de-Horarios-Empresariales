@@ -4,6 +4,7 @@ from config import Config
 from models.models import db
 from routes.usuarios import usuarios_bp
 from routes.empleados import empleados_bp
+from routes.turnos import turnos_bp
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -16,6 +17,7 @@ with app.app_context():
 # Rutas
 app.register_blueprint(usuarios_bp)
 app.register_blueprint(empleados_bp)
+app.register_blueprint(turnos_bp)
 
 @app.route("/")
 def index():
