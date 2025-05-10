@@ -1,7 +1,7 @@
 # backend/routes/asignaciones.py
 
 from flask import Blueprint, request, jsonify
-from models.models import db, Asignacion
+from models.models import db, Asignacion, Empleado, Turno
 from middlewares.auth import token_required
 
 asignaciones_bp = Blueprint('asignaciones', __name__)
@@ -38,9 +38,19 @@ def get_asignacion(id):
 @token_required
 def crear_asignacion():
     data = request.get_json()
+    id_empleado = data['id_empleado']
+    id_turno = data['id_turno']
+
+    # Validar que existan empleado y turno
+    if not db.session.get(Empleado, id_empleado):
+        return jsonify({'error': 'Empleado no encontrado'}), 404
+
+    if not db.session.get(Turno, id_turno):
+        return jsonify({'error': 'Turno no encontrado'}), 404
+
     nueva_asignacion = Asignacion(
-        id_empleado=data['id_empleado'],
-        id_turno=data['id_turno'],
+        id_empleado=id_empleado,
+        id_turno=id_turno,
         fecha_asignacion=data['fecha_asignacion']
     )
     db.session.add(nueva_asignacion)
