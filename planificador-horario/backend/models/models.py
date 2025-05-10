@@ -44,3 +44,12 @@ class Asignacion(db.Model):
     id_empleado = db.Column(db.Integer, db.ForeignKey('empleados.id_empleado'))
     id_turno = db.Column(db.Integer, db.ForeignKey('turno.id_turno'))
     fecha_asignacion = db.Column(db.DateTime)
+
+class Disponibilidad(db.Model):
+    __tablename__ = 'disponibilidad'
+
+    id_disponibilidad = db.Column(db.Integer, primary_key=True)
+    id_empleado = db.Column(db.Integer, db.ForeignKey('empleados.id_empleado'))
+    dia_semana = db.Column(db.String(15))
+    hora_inicio = db.Column(db.Time)
+    hora_fin = db.Column(db.Time)
