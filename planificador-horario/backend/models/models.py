@@ -53,3 +53,13 @@ class Disponibilidad(db.Model):
     dia_semana = db.Column(db.String(15))
     hora_inicio = db.Column(db.Time)
     hora_fin = db.Column(db.Time)
+
+
+class Notificacion(db.Model):
+    __tablename__ = 'notificacion'
+
+    id_notificacion = db.Column(db.Integer, primary_key=True)
+    id_empleado = db.Column(db.Integer, db.ForeignKey('empleados.id_empleado'))
+    mensaje = db.Column(db.Text)
+    fecha_envio = db.Column(db.DateTime)
+

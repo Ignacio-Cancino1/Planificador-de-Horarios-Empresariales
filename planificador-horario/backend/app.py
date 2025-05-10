@@ -7,6 +7,8 @@ from routes.empleados import empleados_bp
 from routes.turnos import turnos_bp
 from routes.asignaciones import asignaciones_bp
 from routes.disponibilidad import disponibilidad_bp
+from routes.notificaciones import notificaciones_bp
+
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -22,6 +24,7 @@ app.register_blueprint(empleados_bp)
 app.register_blueprint(turnos_bp)
 app.register_blueprint(asignaciones_bp)
 app.register_blueprint(disponibilidad_bp)
+app.register_blueprint(notificaciones_bp)
 
 @app.route("/")
 def index():
