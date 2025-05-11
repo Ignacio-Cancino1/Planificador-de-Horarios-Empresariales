@@ -1,14 +1,12 @@
-#backend/routes/turnos.py
-
 from flask import Blueprint, request, jsonify
 from models.models import db, Turno
-from middlewares.auth import token_required, admin_required
+from middlewares.auth import token_required, admin_required, empleados_o_admin_required
 
 turnos_bp = Blueprint('turnos', __name__)
 
-# Obtener todos los turnos
-@turnos_bp.route('/api/turnos', methods=['GET', 'OPTIONS'])  # ✅ agregado OPTIONS
-@admin_required
+# ✅ Obtener todos los turnos (admin y empleado)
+@turnos_bp.route('/api/turnos', methods=['GET', 'OPTIONS'])
+@empleados_o_admin_required
 def get_turnos():
     turnos = Turno.query.all()
     resultado = []
@@ -22,8 +20,8 @@ def get_turnos():
         })
     return jsonify(resultado)
 
-# Obtener un turno por ID
-@turnos_bp.route('/api/turnos/<int:id>', methods=['GET', 'OPTIONS'])  # ✅
+# ✅ Obtener un turno por ID (solo admin)
+@turnos_bp.route('/api/turnos/<int:id>', methods=['GET', 'OPTIONS'])
 @admin_required
 def get_turno(id):
     turno = Turno.query.get_or_404(id)
@@ -35,8 +33,8 @@ def get_turno(id):
         'descripcion': turno.descripcion
     })
 
-# Crear un nuevo turno
-@turnos_bp.route('/api/turnos', methods=['POST', 'OPTIONS'])  # ✅
+# ✅ Crear un nuevo turno (solo admin)
+@turnos_bp.route('/api/turnos', methods=['POST', 'OPTIONS'])
 @admin_required
 def crear_turno():
     data = request.get_json()
@@ -50,8 +48,8 @@ def crear_turno():
     db.session.commit()
     return jsonify({'mensaje': 'Turno creado correctamente'}), 201
 
-# Actualizar un turno existente
-@turnos_bp.route('/api/turnos/<int:id>', methods=['PUT', 'OPTIONS'])  # ✅
+# ✅ Actualizar turno (solo admin)
+@turnos_bp.route('/api/turnos/<int:id>', methods=['PUT', 'OPTIONS'])
 @admin_required
 def actualizar_turno(id):
     data = request.get_json()
@@ -63,8 +61,8 @@ def actualizar_turno(id):
     db.session.commit()
     return jsonify({'mensaje': 'Turno actualizado correctamente'})
 
-# Eliminar un turno
-@turnos_bp.route('/api/turnos/<int:id>', methods=['DELETE', 'OPTIONS'])  # ✅
+# ✅ Eliminar turno (solo admin)
+@turnos_bp.route('/api/turnos/<int:id>', methods=['DELETE', 'OPTIONS'])
 @admin_required
 def eliminar_turno(id):
     turno = Turno.query.get_or_404(id)

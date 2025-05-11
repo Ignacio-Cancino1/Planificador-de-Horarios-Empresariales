@@ -1,13 +1,13 @@
 from flask import Blueprint, request, jsonify
 from models.models import db, Empleado, Usuario
-from middlewares.auth import token_required, admin_required
-import bcrypt  # ✅ Usar bcrypt correctamente
+from middlewares.auth import token_required, admin_required, empleados_o_admin_required
+import bcrypt
 
 empleados_bp = Blueprint('empleados', __name__)
 
-# Obtener todos los empleados
-@empleados_bp.route('/api/empleados', methods=['GET', 'OPTIONS'])  # ✅
-@admin_required
+# ✅ Ruta accesible tanto por admin como por empleados
+@empleados_bp.route('/api/empleados', methods=['GET', 'OPTIONS'])
+@empleados_o_admin_required
 def get_empleados():
     empleados = Empleado.query.all()
     resultado = []
@@ -22,6 +22,7 @@ def get_empleados():
         })
     return jsonify(resultado)
 
+# Solo accesible para admin
 @empleados_bp.route('/api/empleados/<int:id>', methods=['GET', 'OPTIONS'])
 @admin_required
 def get_empleado(id):
@@ -35,16 +36,13 @@ def get_empleado(id):
         'rol': empleado.rol
     })
 
-# Crear un nuevo empleado y usuario asociado
-@empleados_bp.route('/api/empleados', methods=['POST', 'OPTIONS'])  # ✅
+@empleados_bp.route('/api/empleados', methods=['POST', 'OPTIONS'])
 @admin_required
 def crear_empleado():
     data = request.get_json()
-
     try:
         print("📥 Datos recibidos:", data)
 
-        # 1. Crear el empleado
         nuevo_empleado = Empleado(
             nombre=data['nombre'],
             apellido=data['apellido'],
@@ -53,18 +51,17 @@ def crear_empleado():
             rol=data['rol']
         )
         db.session.add(nuevo_empleado)
-        db.session.flush()  # 🔄 para obtener id_empleado sin commit
+        db.session.flush()
 
-        # 2. Crear el usuario con contraseña temporal
         contraseña_temporal = "cambiar123"
-        hash = bcrypt.hashpw(contraseña_temporal.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')  # ✅ CORRECTO
+        hash = bcrypt.hashpw(contraseña_temporal.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
 
         nuevo_usuario = Usuario(
             email=data['email'],
             password_hash=hash,
             rol=data['rol'],
             id_empleado=nuevo_empleado.id_empleado,
-            requiere_cambio_clave=True  # ✅ Obligamos a cambiar clave
+            requiere_cambio_clave=True
         )
         db.session.add(nuevo_usuario)
 
@@ -77,8 +74,7 @@ def crear_empleado():
         print("❌ Error al crear empleado:", str(e))
         return jsonify({'error': str(e)}), 500
 
-# Actualizar un empleado existente
-@empleados_bp.route('/api/empleados/<int:id>', methods=['PUT', 'OPTIONS'])  # ✅
+@empleados_bp.route('/api/empleados/<int:id>', methods=['PUT', 'OPTIONS'])
 @admin_required
 def actualizar_empleado(id):
     data = request.get_json()
@@ -91,8 +87,7 @@ def actualizar_empleado(id):
     db.session.commit()
     return jsonify({'mensaje': 'Empleado actualizado correctamente'})
 
-# Eliminar un empleado
-@empleados_bp.route('/api/empleados/<int:id>', methods=['DELETE', 'OPTIONS'])  # ✅
+@empleados_bp.route('/api/empleados/<int:id>', methods=['DELETE', 'OPTIONS'])
 @admin_required
 def eliminar_empleado(id):
     empleado = Empleado.query.get_or_404(id)

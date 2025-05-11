@@ -32,7 +32,6 @@ def token_required(f):
 
     return decorated
 
-
 def admin_required(f):
     @wraps(f)
     @token_required
@@ -40,5 +39,16 @@ def admin_required(f):
         usuario = getattr(request, 'usuario', None)
         if not usuario or usuario.get('rol') != 'admin':
             return jsonify({'error': 'Acceso restringido a administradores'}), 403
+        return f(*args, **kwargs)
+    return decorated
+
+# ✅ NUEVO: Permite acceso a empleados o administradores
+def empleados_o_admin_required(f):
+    @wraps(f)
+    @token_required
+    def decorated(*args, **kwargs):
+        usuario = getattr(request, 'usuario', None)
+        if not usuario or usuario.get('rol') not in ['admin', 'empleado']:
+            return jsonify({'error': 'Acceso restringido'}), 403
         return f(*args, **kwargs)
     return decorated
