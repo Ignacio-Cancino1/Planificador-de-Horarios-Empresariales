@@ -1,7 +1,9 @@
 # backend/app.py
 
+import os
 from flask import Flask
 from flask_cors import CORS
+from dotenv import load_dotenv  # 👈 Agregado para cargar .env local
 from config import Config
 from models.models import db
 from routes.usuarios import usuarios_bp
@@ -12,11 +14,13 @@ from routes.disponibilidad import disponibilidad_bp
 from routes.notificaciones import notificaciones_bp
 from routes.reportes import reportes_bp
 
+# 👇 Cargar .env
+load_dotenv()
+
 app = Flask(__name__)
 app.config.from_object(Config)
 db.init_app(app)
 
-# ✅ Configuración CORS corregida y compatible con autenticación vía token
 CORS(app, supports_credentials=True, resources={
     r"/api/*": {
         "origins": [
@@ -43,4 +47,5 @@ def index():
     return "API Turnos funcionando"
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(debug=False, host="0.0.0.0", port=port)

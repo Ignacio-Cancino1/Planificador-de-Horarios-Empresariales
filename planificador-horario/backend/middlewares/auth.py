@@ -1,8 +1,9 @@
 import jwt
 from flask import request, jsonify
 from functools import wraps
+import os
 
-SECRET_KEY = "clave-secreta-supersegura"  # Usa tu clave real y guárdala en .env en producción
+SECRET_KEY = os.environ.get("SECRET_KEY", "clave-secreta-supersegura")  # Usa tu clave real y guárdala en .env en producción
 
 def token_required(f):
     @wraps(f)
