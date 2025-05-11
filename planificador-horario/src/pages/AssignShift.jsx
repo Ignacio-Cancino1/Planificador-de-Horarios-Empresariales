@@ -1,57 +1,65 @@
-// src/pages/AssignShift.jsx
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './AssignShift.module.css';
 import { FaArrowLeft } from 'react-icons/fa';
-
-// Datos simulados
-const mockEmployees = [
-  { id: 1, nombre: "Ana López", rol: "Gerente" },
-  { id: 2, nombre: "Carlos Méndez", rol: "Cajero" },
-  { id: 3, nombre: "María González", rol: "Supervisor" }
-];
-
-const shiftOptions = [
-  { id: 1, label: "Mañana (08:00 - 14:00)" },
-  { id: 2, label: "Tarde (14:00 - 20:00)" },
-  { id: 3, label: "Noche (20:00 - 08:00)" }
-];
+import api from '../services/api';
 
 export const AssignShift = () => {
   const [formData, setFormData] = useState({
     employeeId: '',
     shiftId: '',
-    date: new Date().toISOString().split('T')[0] // Fecha actual por defecto
+    date: new Date().toISOString().split('T')[0]
   });
+  const [employees, setEmployees] = useState([]);
+  const [shifts, setShifts] = useState([]);
+  const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const navigate = useNavigate();
+
+  // Cargar empleados y turnos desde el backend
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const empRes = await api.get('/empleados');
+        const shiftRes = await api.get('/turnos');
+        setEmployees(empRes.data);
+        setShifts(shiftRes.data);
+      } catch (err) {
+        console.error("❌ Error cargando datos:", err);
+        setError('Error al cargar datos');
+      }
+    };
+    fetchData();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // Validación básica
-    if (!formData.employeeId || !formData.shiftId) {
-      alert('Por favor completa todos los campos');
+    setError('');
+    setSuccessMessage('');
+
+    if (!formData.employeeId || !formData.shiftId || !formData.date) {
+      setError('Por favor completa todos los campos');
       return;
     }
 
-    // Aquí iría la lógica para guardar en el backend
-    console.log('Turno asignado:', {
-      ...formData,
-      employee: mockEmployees.find(e => e.id === Number(formData.employeeId))
-    });
+    try {
+      await api.post('/asignaciones', {
+        id_empleado: parseInt(formData.employeeId),
+        id_turno: parseInt(formData.shiftId),
+        fecha_asignacion: formData.date + ' 00:00:00'
+      });
 
-    // Mensaje de éxito y reset
-    setSuccessMessage('¡Turno asignado correctamente!');
-    setTimeout(() => {
-      setSuccessMessage('');
-      navigate('/dashboard');
-    }, 2000);
+      setSuccessMessage('¡Turno asignado correctamente!');
+      setTimeout(() => navigate('/dashboard'), 2000);
+    } catch (err) {
+      console.error("❌ Error al asignar turno:", err.response?.data || err.message);
+      setError('Error al asignar el turno.');
+    }
   };
 
   return (
@@ -59,8 +67,12 @@ export const AssignShift = () => {
       <button onClick={() => navigate(-1)} className={styles.backButton}>
         <FaArrowLeft /> Volver
       </button>
-      <h1>Asignar Nuevo Turno</h1>
-      
+
+      <h1>Asignar Turno</h1>
+
+      {error && <p className={styles.error}>{error}</p>}
+      {successMessage && <p className={styles.successMessage}>{successMessage}</p>}
+
       <form onSubmit={handleSubmit} className={styles.form}>
         <div className={styles.formGroup}>
           <label htmlFor="employeeId">Empleado:</label>
@@ -72,9 +84,9 @@ export const AssignShift = () => {
             required
           >
             <option value="">Seleccione un empleado</option>
-            {mockEmployees.map(employee => (
-              <option key={employee.id} value={employee.id}>
-                {employee.nombre} ({employee.rol})
+            {employees.map(emp => (
+              <option key={emp.id} value={emp.id}>
+                {emp.nombre} {emp.apellido} ({emp.rol})
               </option>
             ))}
           </select>
@@ -90,9 +102,9 @@ export const AssignShift = () => {
             required
           >
             <option value="">Seleccione un turno</option>
-            {shiftOptions.map(shift => (
+            {shifts.map(shift => (
               <option key={shift.id} value={shift.id}>
-                {shift.label}
+                {shift.descripcion} ({shift.hora_inicio} - {shift.hora_fin})
               </option>
             ))}
           </select>
@@ -111,14 +123,8 @@ export const AssignShift = () => {
         </div>
 
         <button type="submit" className={styles.submitButton}>
-          Confirmar Turno
+          Asignar Turno
         </button>
-
-        {successMessage && (
-          <div className={styles.successMessage}>
-            {successMessage}
-          </div>
-        )}
       </form>
     </div>
   );
