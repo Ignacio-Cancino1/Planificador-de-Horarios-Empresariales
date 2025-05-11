@@ -1,5 +1,3 @@
-# backend/routes/asignaciones.py
-
 from flask import Blueprint, request, jsonify
 from models.models import db, Asignacion, Empleado, Turno
 from middlewares.auth import token_required, admin_required
@@ -7,7 +5,7 @@ from middlewares.auth import token_required, admin_required
 asignaciones_bp = Blueprint('asignaciones', __name__)
 
 # Obtener todas las asignaciones
-@asignaciones_bp.route('/api/asignaciones', methods=['GET'])
+@asignaciones_bp.route('/api/asignaciones', methods=['GET', 'OPTIONS'])  # ✅
 @admin_required
 def get_asignaciones():
     asignaciones = Asignacion.query.all()
@@ -22,7 +20,7 @@ def get_asignaciones():
     return jsonify(resultado)
 
 # Obtener una asignación por ID
-@asignaciones_bp.route('/api/asignaciones/<int:id>', methods=['GET'])
+@asignaciones_bp.route('/api/asignaciones/<int:id>', methods=['GET', 'OPTIONS'])  # ✅
 @admin_required
 def get_asignacion(id):
     a = Asignacion.query.get_or_404(id)
@@ -34,7 +32,7 @@ def get_asignacion(id):
     })
 
 # Crear una nueva asignación
-@asignaciones_bp.route('/api/asignaciones', methods=['POST'])
+@asignaciones_bp.route('/api/asignaciones', methods=['POST', 'OPTIONS'])  # ✅
 @admin_required
 def crear_asignacion():
     data = request.get_json()
@@ -57,7 +55,7 @@ def crear_asignacion():
     return jsonify({'mensaje': 'Asignación creada correctamente'}), 201
 
 # Actualizar una asignación
-@asignaciones_bp.route('/api/asignaciones/<int:id>', methods=['PUT'])
+@asignaciones_bp.route('/api/asignaciones/<int:id>', methods=['PUT', 'OPTIONS'])  # ✅
 @admin_required
 def actualizar_asignacion(id):
     data = request.get_json()
@@ -69,7 +67,7 @@ def actualizar_asignacion(id):
     return jsonify({'mensaje': 'Asignación actualizada correctamente'})
 
 # Eliminar una asignación
-@asignaciones_bp.route('/api/asignaciones/<int:id>', methods=['DELETE'])
+@asignaciones_bp.route('/api/asignaciones/<int:id>', methods=['DELETE', 'OPTIONS'])  # ✅
 @admin_required
 def eliminar_asignacion(id):
     asignacion = Asignacion.query.get_or_404(id)

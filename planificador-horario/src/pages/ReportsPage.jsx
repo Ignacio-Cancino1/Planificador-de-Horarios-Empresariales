@@ -1,76 +1,90 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaArrowLeft, FaChartBar, FaChartLine, FaChartPie, FaTable } from 'react-icons/fa';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
 import styles from './ReportsPage.module.css';
-
-// Datos simulados para los reportes
-const generateReportData = () => {
-  const employees = [
-    { id: 1, name: "Ana López" },
-    { id: 2, name: "Carlos Méndez" },
-    { id: 3, name: "María González" }
-  ];
-
-  const shifts = ["Mañana", "Tarde", "Noche"];
-  const months = ["Enero", "Febrero", "Marzo", "Abril"];
-  const weeks = ["Semana 1", "Semana 2", "Semana 3", "Semana 4"];
-
-  // Datos mensuales
-  const monthlyData = months.map(month => {
-    const dataPoint = { name: month };
-    employees.forEach(emp => {
-      dataPoint[emp.name] = Math.floor(Math.random() * 20) + 5; // Turnos aleatorios entre 5-25
-    });
-    return dataPoint;
-  });
-
-  // Datos semanales
-  const weeklyData = weeks.map(week => {
-    const dataPoint = { name: week };
-    employees.forEach(emp => {
-      dataPoint[emp.name] = Math.floor(Math.random() * 10) + 2; // Turnos aleatorios entre 2-12
-    });
-    return dataPoint;
-  });
-
-  // Datos por tipo de turno
-  const shiftTypeData = shifts.map(shift => ({
-    name: shift,
-    value: Math.floor(Math.random() * 30) + 10
-  }));
-
-  // Datos individuales para un empleado
-  const individualData = {
-    weekly: weeks.map(week => ({
-      name: week,
-      turnos: Math.floor(Math.random() * 8) + 3
-    })),
-    monthly: months.map(month => ({
-      name: month,
-      turnos: Math.floor(Math.random() * 25) + 10
-    }))
-  };
-
-  return {
-    monthlyData,
-    weeklyData,
-    shiftTypeData,
-    individualData,
-    employees
-  };
-};
-
-const { monthlyData, weeklyData, shiftTypeData, individualData, employees } = generateReportData();
+import api from '../services/api';
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
 
 export const ReportsPage = () => {
   const navigate = useNavigate();
-  const [viewMode, setViewMode] = useState('general'); // 'general' o 'individual'
-  const [selectedEmployee, setSelectedEmployee] = useState(employees[0].id);
-  const [timeRange, setTimeRange] = useState('monthly'); // 'weekly' o 'monthly'
-  const [chartType, setChartType] = useState('bar'); // 'bar', 'pie', 'line'
+  const [viewMode, setViewMode] = useState('general');
+  const [selectedEmployee, setSelectedEmployee] = useState(null);
+  const [timeRange, setTimeRange] = useState('monthly');
+  const [chartType, setChartType] = useState('bar');
+
+  const [employees, setEmployees] = useState([]);
+  const [monthlyData, setMonthlyData] = useState([]);
+  const [weeklyData, setWeeklyData] = useState([]);
+  const [shiftTypeData, setShiftTypeData] = useState([]);
+  const [individualData, setIndividualData] = useState({});
+
+  useEffect(() => {
+    const fetchReportData = async () => {
+      try {
+        const res = await api.get('/reportes/turnos');
+        const raw = res.data;
+        console.log("📊 Datos recibidos:", raw);
+
+        const uniqueEmployees = [...new Map(raw.map(r => [r.id_empleado, {
+          id_empleado: r.id_empleado,
+          nombre: r.nombre
+        }])).values()];
+
+        const monthly = {};
+        raw.forEach(r => {
+          if (!monthly[r.mes]) monthly[r.mes] = {};
+          monthly[r.mes][r.nombre] = (monthly[r.mes][r.nombre] || 0) + 1;
+        });
+        const monthlyData = Object.entries(monthly).map(([mes, empleados]) => ({
+          name: mes,
+          ...empleados
+        }));
+
+        const weekly = {};
+        raw.forEach(r => {
+          if (!weekly[r.semana]) weekly[r.semana] = {};
+          weekly[r.semana][r.nombre] = (weekly[r.semana][r.nombre] || 0) + 1;
+        });
+        const weeklyData = Object.entries(weekly).map(([semana, empleados]) => ({
+          name: semana,
+          ...empleados
+        }));
+
+        const shiftTypeMap = {};
+        raw.forEach(r => {
+          shiftTypeMap[r.turno] = (shiftTypeMap[r.turno] || 0) + 1;
+        });
+        const shiftTypeData = Object.entries(shiftTypeMap).map(([name, value]) => ({ name, value }));
+
+        const individual = {};
+        uniqueEmployees.forEach(emp => {
+          individual[emp.id_empleado] = {
+            weekly: weeklyData.map(sem => ({
+              name: sem.name,
+              turnos: sem[emp.nombre] || 0
+            })),
+            monthly: monthlyData.map(mes => ({
+              name: mes.name,
+              turnos: mes[emp.nombre] || 0
+            }))
+          };
+        });
+
+        setEmployees(uniqueEmployees);
+        setSelectedEmployee(uniqueEmployees[0]?.id_empleado);
+        setMonthlyData(monthlyData);
+        setWeeklyData(weeklyData);
+        setShiftTypeData(shiftTypeData);
+        setIndividualData(individual);
+      } catch (error) {
+        console.error("Error cargando reportes:", error);
+      }
+    };
+
+    fetchReportData();
+  }, []);
 
   const renderGeneralCharts = () => (
     <div className={styles.chartsContainer}>
@@ -83,8 +97,8 @@ export const ReportsPage = () => {
             <YAxis />
             <Tooltip />
             <Legend />
-            {employees.map(emp => (
-              <Bar key={emp.id} dataKey={emp.name} fill={COLORS[emp.id % COLORS.length]} />
+            {employees.map((emp, i) => (
+              <Bar key={emp.id_empleado} dataKey={emp.nombre} fill={COLORS[i % COLORS.length]} />
             ))}
           </BarChart>
         ) : chartType === 'line' ? (
@@ -94,12 +108,15 @@ export const ReportsPage = () => {
             <YAxis />
             <Tooltip />
             <Legend />
-            {employees.map(emp => (
-              <Line 
-                key={emp.id} 
-                type="monotone" 
-                dataKey={emp.name} 
-                stroke={COLORS[emp.id % COLORS.length]} 
+            {employees.map((emp, i) => (
+              <Line
+                key={emp.id_empleado}
+                type="linear"
+                dataKey={emp.nombre}
+                stroke={COLORS[i % COLORS.length]}
+                dot={{ r: 4 }}
+                activeDot={{ r: 6 }}
+                isAnimationActive={false}
               />
             ))}
           </LineChart>
@@ -117,7 +134,7 @@ export const ReportsPage = () => {
             outerRadius={80}
             fill="#8884d8"
             dataKey="value"
-            label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+            label={({ name, percent }) => `${name || 'Sin nombre'}: ${(percent * 100).toFixed(0)}%`}
           >
             {shiftTypeData.map((entry, index) => (
               <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -130,13 +147,13 @@ export const ReportsPage = () => {
   );
 
   const renderIndividualCharts = () => {
-    const employee = employees.find(e => e.id === selectedEmployee);
-    const data = timeRange === 'weekly' ? individualData.weekly : individualData.monthly;
+    const employee = employees.find(e => e.id_empleado === selectedEmployee);
+    const data = timeRange === 'weekly' ? individualData[selectedEmployee]?.weekly : individualData[selectedEmployee]?.monthly;
 
     return (
       <div className={styles.chartsContainer}>
         <div className={styles.chartSection}>
-          <h3>Turnos de {employee?.name} ({timeRange === 'weekly' ? 'Semanal' : 'Mensual'})</h3>
+          <h3>Turnos de {employee?.nombre} ({timeRange === 'weekly' ? 'Semanal' : 'Mensual'})</h3>
           {chartType === 'bar' ? (
             <BarChart width={600} height={300} data={data}>
               <CartesianGrid strokeDasharray="3 3" />
@@ -153,7 +170,14 @@ export const ReportsPage = () => {
               <YAxis />
               <Tooltip />
               <Legend />
-              <Line type="monotone" dataKey="turnos" stroke={COLORS[selectedEmployee % COLORS.length]} />
+              <Line
+                type="linear"
+                dataKey="turnos"
+                stroke={COLORS[selectedEmployee % COLORS.length]}
+                dot={{ r: 4 }}
+                activeDot={{ r: 6 }}
+                isAnimationActive={false}
+              />
             </LineChart>
           ) : (
             <div className={styles.tableContainer}>
@@ -165,7 +189,7 @@ export const ReportsPage = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {data.map((item, index) => (
+                  {data?.map((item, index) => (
                     <tr key={index}>
                       <td>{item.name}</td>
                       <td>{item.turnos}</td>
@@ -212,7 +236,9 @@ export const ReportsPage = () => {
               onChange={(e) => setSelectedEmployee(Number(e.target.value))}
             >
               {employees.map(emp => (
-                <option key={emp.id} value={emp.id}>{emp.name}</option>
+                <option key={emp.id_empleado} value={emp.id_empleado}>
+                  {emp.nombre}
+                </option>
               ))}
             </select>
           </div>

@@ -1,8 +1,8 @@
-# backend/routes/reportes.py
-
 from flask import Blueprint, request, jsonify
-from models.models import db, Reporte, Empleado
+from models.models import db, Reporte, Empleado, Asignacion, Turno
 from middlewares.auth import token_required
+from sqlalchemy import extract
+from datetime import datetime
 
 reportes_bp = Blueprint('reportes', __name__)
 
@@ -54,6 +54,25 @@ def crear_reporte():
     db.session.add(nuevo_reporte)
     db.session.commit()
     return jsonify({'mensaje': 'Reporte generado correctamente'}), 201
+
+# Ruta para obtener datos de turnos agregados para gráficos
+@reportes_bp.route('/api/reportes/turnos', methods=['GET'])
+@token_required
+def reportes_turnos():
+    asignaciones = db.session.query(Asignacion).all()
+    resultado = []
+    for a in asignaciones:
+        empleado = db.session.get(Empleado, a.id_empleado)
+        turno = db.session.get(Turno, a.id_turno)
+        fecha = a.fecha_asignacion
+        resultado.append({
+            "id_empleado": empleado.id_empleado,
+            "nombre": f"{empleado.nombre} {empleado.apellido}",
+            "turno": turno.descripcion,
+            "mes": fecha.strftime('%Y-%m'),
+            "semana": fecha.strftime('%Y-W%U')
+        })
+    return jsonify(resultado)
 
 # Actualizar un reporte
 @reportes_bp.route('/api/reportes/<int:id>', methods=['PUT'])

@@ -2,49 +2,43 @@ import jwt
 from flask import request, jsonify
 from functools import wraps
 
-# 🔐 Clave secreta para firmar y verificar tokens (puedes cargarla desde config si prefieres)
-SECRET_KEY = "tu_clave_super_secreta"
+SECRET_KEY = "clave-secreta-supersegura"  # Usa tu clave real y guárdala en .env en producción
 
-# ✅ Verifica que el token JWT esté presente y válido
 def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
-        token = None
+        # Permitir solicitudes OPTIONS para CORS
+        if request.method == 'OPTIONS':
+            return '', 200
 
+        token = None
         if 'Authorization' in request.headers:
-            try:
-                token = request.headers['Authorization'].split(" ")[1]
-                data = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
-                request.user_data = data
-            except jwt.ExpiredSignatureError:
-                return jsonify({'mensaje': 'Token expirado'}), 401
-            except jwt.InvalidTokenError:
-                return jsonify({'mensaje': 'Token inválido'}), 401
-        else:
-            return jsonify({'mensaje': 'Token requerido'}), 401
+            auth_header = request.headers['Authorization']
+            if auth_header.startswith('Bearer '):
+                token = auth_header.split(" ")[1]
+
+        if not token:
+            return jsonify({'error': 'Token faltante'}), 401
+
+        try:
+            data = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+            request.usuario = data  # almacena el usuario decodificado para acceso posterior
+        except jwt.ExpiredSignatureError:
+            return jsonify({'error': 'Token expirado'}), 401
+        except jwt.InvalidTokenError:
+            return jsonify({'error': 'Token inválido'}), 401
 
         return f(*args, **kwargs)
+
     return decorated
 
-# 🔐 Verifica que el usuario autenticado tenga rol 'admin'
+
 def admin_required(f):
     @wraps(f)
+    @token_required
     def decorated(*args, **kwargs):
-        token = None
-
-        if 'Authorization' in request.headers:
-            try:
-                token = request.headers['Authorization'].split(" ")[1]
-                data = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
-                if data.get("rol") != "admin":
-                    return jsonify({'error': 'Solo los administradores pueden acceder'}), 403
-                request.user_data = data
-            except jwt.ExpiredSignatureError:
-                return jsonify({'mensaje': 'Token expirado'}), 401
-            except jwt.InvalidTokenError:
-                return jsonify({'mensaje': 'Token inválido'}), 401
-        else:
-            return jsonify({'mensaje': 'Token requerido'}), 401
-
+        usuario = getattr(request, 'usuario', None)
+        if not usuario or usuario.get('rol') != 'admin':
+            return jsonify({'error': 'Acceso restringido a administradores'}), 403
         return f(*args, **kwargs)
     return decorated
