@@ -1,142 +1,180 @@
 
-🗓️ Planificador de Horarios Empresariales
-Aplicación web diseñada para facilitar la gestión eficiente de horarios, turnos y disponibilidad de empleados dentro de una empresa. Permite asignar turnos, visualizar calendarios compartidos, generar reportes y gestionar usuarios con control de acceso por roles.
+# 🗓️ Planificador de Horarios Empresariales
 
-🚀 Instalación y Configuración
-Requisitos Previos
-Node.js (v16 o superior)
+Aplicación web diseñada para facilitar la gestión eficiente de horarios, turnos y disponibilidad de empleados dentro de una empresa.  
+Permite asignar turnos, visualizar calendarios compartidos, generar reportes y gestionar usuarios con control de acceso por roles.
 
-npm o yarn
+---
 
-Python >= 3.10
+## 🚀 Instalación y Configuración
 
-PostgreSQL >= 14
+### 🔧 Requisitos Previos
 
-Git (opcional)
+- Node.js (v16 o superior)  
+- npm o yarn  
+- Python >= 3.10  
+- PostgreSQL >= 14  
+- Git (opcional)  
 
-Clonar el Repositorio
+---
+
+### 📥 Clonar el Repositorio
+
+```bash
 git clone https://github.com/Ignacio-Cancino1/Planificador-de-Horarios-Empresariales.git
 cd Planificador-de-Horarios-Empresariales
+```
 
-Frontend (React)
+---
+
+### 🖥️ Frontend (React)
+
+```bash
 cd frontend
-npm install
-(o)
-yarn install
+npm install       # o yarn install
 npm install react-icons react-router-dom
 npm run dev
+```
 
-Backend (Flask + PostgreSQL)
+---
+
+### 🐍 Backend (Flask + PostgreSQL)
+
+```bash
 cd backend
 python -m venv venv
-source venv/bin/activate (en Windows: venv\Scripts\activate)
+source venv/bin/activate     # En Windows: venv\Scripts\activate
 pip install -r requirements.txt
 python app.py
+```
 
-Configuración de Variables (.env o config.py)
+---
+
+### 🔐 Configuración de Variables (.env o config.py)
+
+```env
 SECRET_KEY=clave-secreta-supersegura
+```
 
-Verifica que config.py importe os.environ.get("SECRET_KEY").
+Verifica que `config.py` importe:  
+`os.environ.get("SECRET_KEY")`
 
-🏗️ Estructura del Proyecto
+---
+
+## 🏗️ Estructura del Proyecto
+
+```
 src/
 ├── pages/
-│ ├── Login.jsx → Autenticación y redirección por rol o cambio de contraseña
-│ ├── ChangePassword.jsx → Cambio obligatorio de contraseña
-│ ├── Dashboard.jsx → Panel de administración
-│ ├── UserDashboard.jsx → Vista de empleados
-│ ├── Employees.jsx → Gestión de empleados
-│ ├── ShiftCalendar.jsx → Calendario de turnos compartido
-│ └── ReportsPage.jsx → Generación de reportes en PDF
-└── App.jsx → Ruteo y protección de rutas
+│   ├── Login.jsx           → Autenticación y redirección por rol o cambio de contraseña
+│   ├── ChangePassword.jsx  → Cambio obligatorio de contraseña
+│   ├── Dashboard.jsx       → Panel de administración
+│   ├── UserDashboard.jsx   → Vista de empleados
+│   ├── Employees.jsx       → Gestión de empleados
+│   ├── ShiftCalendar.jsx   → Calendario de turnos compartido
+│   └── ReportsPage.jsx     → Generación de reportes en PDF
+└── App.jsx                 → Ruteo y protección de rutas
+```
 
-🔐 Autenticación y Seguridad
-Login con email o RUT
+---
 
-Tokens JWT firmados y verificados
+## 🔐 Autenticación y Seguridad
 
-Campo requiere_cambio_clave obliga a cambiar la contraseña en el primer login
+- Login con email o RUT  
+- Tokens JWT firmados y verificados  
+- Campo `requiere_cambio_clave` obliga a cambiar la contraseña en el primer login  
+- Rutas protegidas por rol (`admin_required` y `token_required`)  
+- Clave secreta gestionada desde `.env`  
 
-Rutas protegidas por rol (admin_required y token_required)
+---
 
-Clave secreta gestionada desde .env
+## 🔁 Funcionalidades Clave
 
-🔁 Funcionalidades Clave
-Login y Control de Acceso
-Inicio de sesión con redirección automática según rol
+### ✅ Login y Control de Acceso
+- Inicio de sesión con redirección automática según rol  
+- Cambio de contraseña forzado si el usuario es nuevo  
 
-Cambio de contraseña forzado si el usuario es nuevo
+### 📆 Calendario Compartido
+- Visualización de turnos por mes  
+- Ambos roles (admin y empleado) pueden ver todos los turnos  
+- Filtro por empleado para admins y empleados  
+- Exportación a PDF de los turnos visibles  
 
-Calendario Compartido
-Visualización de turnos por mes
+### 👥 Gestión de Empleados
+- CRUD de empleados  
+- Creación automática del usuario con clave temporal (`cambiar123`)  
+- Visualización de estado y detalles individuales  
 
-Ambos roles (admin y empleado) pueden ver todos los turnos
+### 📄 Reportes
+- Generación de reportes de turnos diarios/mensuales  
+- Exportación a PDF con diseño personalizado  
 
-Filtro por empleado para admins y empleados
+---
 
-Exportación a PDF de los turnos visibles
+## 🧪 Credenciales de Prueba
 
-Gestión de Empleados
-CRUD de empleados
+- Email: admin@gmail.com  
+- Contraseña: 2633  
 
-Creación automática del usuario con clave temporal (cambiar123)
+---
 
-Visualización de estado y detalles individuales
+## 🧰 Solución de Problemas
 
-Reportes
-Generación de reportes de turnos diarios/mensuales
+**Error:** `ModuleNotFoundError: flask_sqlalchemy`  
+➡️ Solución:  
+```bash
+pip install flask_sqlalchemy
+```
 
-Exportación a PDF con diseño personalizado
+**Error de token:** `Signature verification failed`  
+➡️ Verifica que `SECRET_KEY` sea consistente en `.env`, `config.py`, y `auth.py`.
 
-🧪 Credenciales de Prueba
-Email: admin@gmail.com
-Contraseña: 2633
+---
 
-🧰 Solución de Problemas
-Error: ModuleNotFoundError: flask_sqlalchemy
-Solución: pip install flask_sqlalchemy
+## 🌐 Despliegue en Vercel
 
-Error de token: Signature verification failed
-Asegúrate que SECRET_KEY sea consistente en .env, config.py, y auth.py.
+- URL: [https://planificador-de-horarios-empresariales.vercel.app](https://planificador-de-horarios-empresariales.vercel.app)
 
-🌐 Despliegue en Vercel
-URL: https://planificador-de-horarios-empresariales.vercel.app
+**Recomendaciones para Vercel:**
 
-Recomendaciones:
-Framework: Vite o Create React App
-Build Command: npm run build
-Output Directory: build
+- Framework: Vite o Create React App  
+- Build Command: `npm run build`  
+- Output Directory: `build`  
 
-Archivo vercel.json:
+Archivo `vercel.json`:
 
+```json
 {
-"rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
 }
+```
 
-📌 Mejoras Futuras
-Edición de datos del empleado desde el frontend
+---
 
-Integración con Google Calendar
+## 📌 Mejoras Futuras
 
-Módulo de asistencia y vacaciones
+- Edición de datos del empleado desde el frontend  
+- Integración con Google Calendar  
+- Módulo de asistencia y vacaciones  
+- Dashboard con estadísticas gráficas  
 
-Dashboard con estadísticas gráficas
+---
 
-🤝 Contribución
-Haz fork del proyecto
+## 🤝 Contribución
 
-Crea una rama:
-git checkout -b feature/nueva-funcionalidad
+1. Haz fork del proyecto  
+2. Crea una rama:  
+   `git checkout -b feature/nueva-funcionalidad`  
+3. Realiza tus cambios y commitea:  
+   `git commit -m "Agrega nueva funcionalidad"`  
+4. Sube tu rama:  
+   `git push origin feature/nueva-funcionalidad`  
+5. Abre un Pull Request  
 
-Commitea tus cambios:
-git commit -m "Agrega nueva funcionalidad"
+---
 
-Push a la rama:
-git push origin feature/nueva-funcionalidad
+## 👤 Autor
 
-Abre un Pull Request
-
-🧑 Autor
-Ignacio Cancino
-GitHub: https://github.com/Ignacio-Cancino1
-Despliegue: https://planificador-de-horarios-empresariales.vercel.app
+**Ignacio Cancino**  
+- GitHub: [https://github.com/Ignacio-Cancino1](https://github.com/Ignacio-Cancino1)  
+- Despliegue: [planificador-de-horarios-empresariales.vercel.app](https://planificador-de-horarios-empresariales.vercel.app)
