@@ -1,169 +1,142 @@
-# Planificador-de-Horarios-Empresariales
-Desarrollo de una aplicación para la gestión de eficiente de horarios y turnos de  empleados permitiendo la asignación, visualización y organización de la planifi cación del personal. La aplicación facilitara la distribución de horarios, evitara  conflictos y mejorar la comunicación entre la empresa y sus empleados. 
+
+🗓️ Planificador de Horarios Empresariales
+Aplicación web diseñada para facilitar la gestión eficiente de horarios, turnos y disponibilidad de empleados dentro de una empresa. Permite asignar turnos, visualizar calendarios compartidos, generar reportes y gestionar usuarios con control de acceso por roles.
 
 🚀 Instalación y Configuración
-Requisitos previos
+Requisitos Previos
+Node.js (v16 o superior)
 
--Node.js (v16 o superior)
--npm (v8 o superior) o yarn
--Git (opcional)
+npm o yarn
 
-Pasos para instalar
+Python >= 3.10
 
--Clonar el repositorio (si no lo has hecho):
-En la consola o Terminal
--git clone https://github.com/Ignacio-Cancino1/Planificador-de-Horarios-Empresariales.git
--cd planificador-horario
+PostgreSQL >= 14
 
-Instalar dependencias:
-En la consola o Terminal
--npm install
-# o
--yarn install
+Git (opcional)
 
-Instalar dependencias adicionales (si no se instalaron automáticamente):
+Clonar el Repositorio
+git clone https://github.com/Ignacio-Cancino1/Planificador-de-Horarios-Empresariales.git
+cd Planificador-de-Horarios-Empresariales
 
-En la consola o Terminal
--npm install react-icons react-router-dom
+Frontend (React)
+cd frontend
+npm install
+(o)
+yarn install
+npm install react-icons react-router-dom
+npm run dev
 
-Iniciar la aplicación:
+Backend (Flask + PostgreSQL)
+cd backend
+python -m venv venv
+source venv/bin/activate (en Windows: venv\Scripts\activate)
+pip install -r requirements.txt
+python app.py
 
-En la consola o Terminal
--npm run dev
-# o
--yarn dev
-# o
-npm start
+Configuración de Variables (.env o config.py)
+SECRET_KEY=clave-secreta-supersegura
+
+Verifica que config.py importe os.environ.get("SECRET_KEY").
 
 🏗️ Estructura del Proyecto
-
 src/
 ├── pages/
-│   ├── Dashboard.jsx       # Página principal después del login
-│   ├── Employees.jsx       # Listado de empleados
-│   ├── EmployeeProfile.jsx # Perfil detallado de empleado
-│   ├── Login.jsx           # Página de autenticación
-│   └── Home.jsx            # Página de inicio pública
-├── App.jsx                 # Configuración de rutas principal
-└── index.js                # Punto de entrada
+│ ├── Login.jsx → Autenticación y redirección por rol o cambio de contraseña
+│ ├── ChangePassword.jsx → Cambio obligatorio de contraseña
+│ ├── Dashboard.jsx → Panel de administración
+│ ├── UserDashboard.jsx → Vista de empleados
+│ ├── Employees.jsx → Gestión de empleados
+│ ├── ShiftCalendar.jsx → Calendario de turnos compartido
+│ └── ReportsPage.jsx → Generación de reportes en PDF
+└── App.jsx → Ruteo y protección de rutas
 
-🔑 Credenciales de Prueba
-Usuario: admin@gmail.com
+🔐 Autenticación y Seguridad
+Login con email o RUT
+
+Tokens JWT firmados y verificados
+
+Campo requiere_cambio_clave obliga a cambiar la contraseña en el primer login
+
+Rutas protegidas por rol (admin_required y token_required)
+
+Clave secreta gestionada desde .env
+
+🔁 Funcionalidades Clave
+Login y Control de Acceso
+Inicio de sesión con redirección automática según rol
+
+Cambio de contraseña forzado si el usuario es nuevo
+
+Calendario Compartido
+Visualización de turnos por mes
+
+Ambos roles (admin y empleado) pueden ver todos los turnos
+
+Filtro por empleado para admins y empleados
+
+Exportación a PDF de los turnos visibles
+
+Gestión de Empleados
+CRUD de empleados
+
+Creación automática del usuario con clave temporal (cambiar123)
+
+Visualización de estado y detalles individuales
+
+Reportes
+Generación de reportes de turnos diarios/mensuales
+
+Exportación a PDF con diseño personalizado
+
+🧪 Credenciales de Prueba
+Email: admin@gmail.com
 Contraseña: 2633
 
-🛠️ Componentes Implementados
-1. Autenticación
--Login funcional con validación frontend
--Protección de rutas privadas
--Manejo de sesión simulada
+🧰 Solución de Problemas
+Error: ModuleNotFoundError: flask_sqlalchemy
+Solución: pip install flask_sqlalchemy
 
-2. Dashboard
--Vista principal post-login
--Accesos rápidos a funcionalidades
--Botón de cierre de sesión
+Error de token: Signature verification failed
+Asegúrate que SECRET_KEY sea consistente en .env, config.py, y auth.py.
 
-3. Gestión o Lista de Empleados
--Listado completo de empleados con:
--Foto
--Datos básicos
--Estado (activo/inactivo)
--Acceso a perfiles individuales
+🌐 Despliegue en Vercel
+URL: https://planificador-de-horarios-empresariales.vercel.app
 
-4. Perfil de Empleado
--Vista detallada con:
--Foto de perfil
--Descripción completa
--Botón para ver horarios
--Estado visual
+Recomendaciones:
+Framework: Vite o Create React App
+Build Command: npm run build
+Output Directory: build
 
-🎨 Guía de Estilos
--CSS Modules para estilos encapsulados
--React Icons para iconografía
--Diseño responsive para todos los dispositivos
+Archivo vercel.json:
 
-📌 Próximas Mejoras
--Implementación de pages
--Funcionalidad de edición de perfiles
--Exportación de reportes en PDF
--Conexion con la base de datos
+{
+"rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+}
 
-🚨 Solución de Problemas Comunes
-Errores de importación
-En la consola o Terminal
-# Si aparece "Module not found":
-npm install [nombre-paquete]
-# o
-npm ci
-Problemas con mayúsculas/minúsculas (Windows)
-Asegurar que los nombres de archivos coincidan exactamente con las importaciones
+📌 Mejoras Futuras
+Edición de datos del empleado desde el frontend
 
-Ejecutar:
+Integración con Google Calendar
 
-En la consola o Terminal
-npm cache clean --force
+Módulo de asistencia y vacaciones
+
+Dashboard con estadísticas gráficas
+
 🤝 Contribución
 Haz fork del proyecto
 
-Crea una rama (git checkout -b feature/nueva-funcionalidad)
+Crea una rama:
+git checkout -b feature/nueva-funcionalidad
 
-Haz commit de tus cambios (git commit -m 'Añade nueva funcionalidad')
+Commitea tus cambios:
+git commit -m "Agrega nueva funcionalidad"
 
-Haz push a la rama (git push origin feature/nueva-funcionalidad)
+Push a la rama:
+git push origin feature/nueva-funcionalidad
 
 Abre un Pull Request
 
-
-🌐 🚀 Planificador de Horarios Empresariales
-🌐 Despliegue en Vercel
-Acceso a la Aplicación
-🔗 URL de Producción:
-https://planificador-de-horarios-empresariales.vercel.app
-
-Configuración Automática
-Deploy with Vercel
-
-Pasos para Despliegue Manual
-Conectar repositorio en Vercel Dashboard
-
-Configurar proyecto:
-
-Framework: Create React App
-
-Build Command: npm run build
-
-Output Directory: build
-
-Agregar variables de entorno (si aplica)
-
-¡Desplegar! 🎉
-
-Características del Despliegue
-✔️ Actualizaciones automáticas con cada push a main
-✔️ Preview Deployments para cada Pull Request
-✔️ SSL automático y CDN global
-✔️ Dominio personalizable en configuraciones
-
-Solución de Problemas
-🔧 Si las rutas no funcionan, añade este vercel.json:
-
-json
-{
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
-}
-📊 Monitoreo incluido:
-
-Análisis de rendimiento
-
-Registros de errores en tiempo real
-
-Optimización automática de assets
-
-💡 Pro Tip: Para conectar un dominio personalizado:
-
-Ve a Settings → Domains
-
-Sigue las instrucciones de verificación DNS
-
-¡Disfruta de tu app en tudominio.com!
-
-🔗 Enlace permanente: planificador-de-horarios-empresariales.vercel.app
+🧑 Autor
+Ignacio Cancino
+GitHub: https://github.com/Ignacio-Cancino1
+Despliegue: https://planificador-de-horarios-empresariales.vercel.app
