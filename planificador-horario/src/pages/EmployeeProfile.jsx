@@ -1,73 +1,76 @@
-// src/pages/EmployeeProfile.jsx
 import { useParams, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
 import styles from './EmployeeProfile.module.css';
 import { FaCalendarAlt, FaArrowLeft } from 'react-icons/fa';
 
 export const EmployeeProfile = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [employee, setEmployee] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Datos simulados (luego puedes reemplazar con una API)
-  const mockEmployees = [
-    {
-      id: 1,
-      nombre: "Ana",
-      apellido: "López",
-      puesto: "Gerente de Ventas",
-      foto: "https://randomuser.me/api/portraits/women/44.jpg",
-      descripcion: "Lorem ipsum dolor sit amet, consectetur adipiscing elit...",
-      estado: "Activo"
-    },
-    {
-      id: 2,
-      nombre: "Carlos",
-      apellido: "Méndez",
-      puesto: "Cajero Principal",
-      foto: "https://randomuser.me/api/portraits/men/32.jpg",
-      descripcion: "Experto en atención al cliente con 5 años de experiencia...",
-      estado: "Activo"
-    }
-  ];
+  useEffect(() => {
+    const fetchEmployee = async () => {
+      try {
+        const storedUser = JSON.parse(localStorage.getItem('user'));
+        const token = storedUser?.token;
 
-  const employee = mockEmployees.find(emp => emp.id === Number(id));
+        if (!token) {
+          setError("No se encontró token de autenticación.");
+          setLoading(false);
+          return;
+        }
 
-  if (!employee) {
-    return <div>Empleado no encontrado</div>;
-  }
+        const response = await axios.get(`http://localhost:5000/api/empleados/${id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+
+        setEmployee(response.data);
+      } catch (err) {
+        console.error("❌ Error al cargar el empleado:", err);
+        setError("No se pudo cargar el perfil.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEmployee();
+  }, [id]);
+
+  if (loading) return <div>Cargando empleado...</div>;
+  if (error || !employee) return <div>{error || "Empleado no encontrado"}</div>;
 
   return (
     <div className={styles.profileContainer}>
-      {/* Botón de regreso */}
       <button onClick={() => navigate(-1)} className={styles.backButton}>
         <FaArrowLeft /> Volver
       </button>
 
-      {/* Tarjeta de perfil */}
       <div className={styles.profileCard}>
-        {/* Sección superior */}
         <div className={styles.profileHeader}>
           <img 
-            src={employee.foto} 
+            src={`https://randomuser.me/api/portraits/${employee.rol === 'admin' ? 'women' : 'men'}/${employee.id_empleado % 50}.jpg`} 
             alt={`${employee.nombre} ${employee.apellido}`} 
             className={styles.profileImage}
           />
           <div className={styles.profileInfo}>
             <h2>{employee.nombre} {employee.apellido}</h2>
-            <p className={styles.position}>{employee.puesto}</p>
+            <p className={styles.position}>{employee.rol}</p>
             <span className={`${styles.status} ${employee.estado === 'Activo' ? styles.active : styles.inactive}`}>
-              {employee.estado}
+              {employee.estado || "Activo"}
             </span>
           </div>
         </div>
 
-        {/* Descripción */}
         <div className={styles.profileDescription}>
           <h3>Descripción</h3>
-          <p>{employee.descripcion}</p>
-          <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur...</p>
+          <p>{employee.descripcion || "Sin descripción disponible."}</p>
         </div>
 
-        {/* Botón de horarios */}
         <button 
           onClick={() => navigate(`/empleados/${id}/horarios`)} 
           className={styles.scheduleButton}

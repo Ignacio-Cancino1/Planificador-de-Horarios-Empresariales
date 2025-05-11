@@ -5,7 +5,7 @@ import bcrypt
 
 empleados_bp = Blueprint('empleados', __name__)
 
-# ✅ Ruta accesible tanto por admin como por empleados
+# ✅ Ruta accesible tanto por admin como empleados
 @empleados_bp.route('/api/empleados', methods=['GET', 'OPTIONS'])
 @empleados_o_admin_required
 def get_empleados():
@@ -22,10 +22,16 @@ def get_empleados():
         })
     return jsonify(resultado)
 
-# Solo accesible para admin
+# ✅ Obtener un empleado por ID - solo si eres admin o tú mismo
 @empleados_bp.route('/api/empleados/<int:id>', methods=['GET', 'OPTIONS'])
-@admin_required
+@empleados_o_admin_required
 def get_empleado(id):
+    usuario = request.usuario
+
+    # 🔒 Si es empleado, solo puede ver su propio perfil
+    if usuario['rol'] == 'empleado' and usuario['id_empleado'] != id:
+        return jsonify({'error': 'Acceso no autorizado'}), 403
+
     empleado = Empleado.query.get_or_404(id)
     return jsonify({
         'id_empleado': empleado.id_empleado,
@@ -36,6 +42,7 @@ def get_empleado(id):
         'rol': empleado.rol
     })
 
+# ✅ Crear nuevo empleado y usuario
 @empleados_bp.route('/api/empleados', methods=['POST', 'OPTIONS'])
 @admin_required
 def crear_empleado():
@@ -74,6 +81,7 @@ def crear_empleado():
         print("❌ Error al crear empleado:", str(e))
         return jsonify({'error': str(e)}), 500
 
+# ✅ Actualizar empleado
 @empleados_bp.route('/api/empleados/<int:id>', methods=['PUT', 'OPTIONS'])
 @admin_required
 def actualizar_empleado(id):
@@ -87,6 +95,7 @@ def actualizar_empleado(id):
     db.session.commit()
     return jsonify({'mensaje': 'Empleado actualizado correctamente'})
 
+# ✅ Eliminar empleado
 @empleados_bp.route('/api/empleados/<int:id>', methods=['DELETE', 'OPTIONS'])
 @admin_required
 def eliminar_empleado(id):
