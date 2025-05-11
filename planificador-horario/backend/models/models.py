@@ -27,6 +27,9 @@ class Usuario(db.Model):
     rol = db.Column(db.String(20), nullable=False)
     id_empleado = db.Column(db.Integer, db.ForeignKey('empleados.id_empleado'), unique=True)
 
+    # ✅ CAMPO NECESARIO PARA CAMBIO DE CLAVE EN PRIMER LOGIN
+    requiere_cambio_clave = db.Column(db.Boolean, default=True)  # <--- este es el cambio
+
 
 class Turno(db.Model):
     __tablename__ = 'turno'
@@ -37,6 +40,7 @@ class Turno(db.Model):
     hora_fin = db.Column(db.Time, nullable=False)
     descripcion = db.Column(db.Text)
 
+
 class Asignacion(db.Model):
     __tablename__ = 'asignacion'
 
@@ -44,6 +48,7 @@ class Asignacion(db.Model):
     id_empleado = db.Column(db.Integer, db.ForeignKey('empleados.id_empleado'))
     id_turno = db.Column(db.Integer, db.ForeignKey('turno.id_turno'))
     fecha_asignacion = db.Column(db.DateTime)
+
 
 class Disponibilidad(db.Model):
     __tablename__ = 'disponibilidad'
@@ -63,6 +68,7 @@ class Notificacion(db.Model):
     mensaje = db.Column(db.Text)
     fecha_envio = db.Column(db.DateTime)
 
+
 class Reporte(db.Model):
     __tablename__ = 'reporte'
 
@@ -71,4 +77,3 @@ class Reporte(db.Model):
     tipo_reporte = db.Column(db.Text)
     fecha_generacion = db.Column(db.DateTime)
     contenido = db.Column(db.Text)
-
