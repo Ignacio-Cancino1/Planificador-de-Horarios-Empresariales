@@ -182,6 +182,53 @@ Archivo `vercel.json`:
   "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
 }
 ```
+---
+
+## 🌐 Despliegue en Producción
+
+### 🔹 Backend (Render)
+
+1. Crear un servicio de tipo **Web Service** en [Render](https://render.com/).
+2. Configurar el path raíz al directorio `backend/`.
+3. Especificar los siguientes comandos:
+
+   - **Build Command:**  
+     ```bash
+     pip install -r requirements.txt
+     ```
+
+   - **Start Command:**  
+     ```bash
+     gunicorn app:app
+     ```
+
+4. Agregar las siguientes variables de entorno en Render:
+
+   | Clave          | Valor                                               |
+   |----------------|-----------------------------------------------------|
+   | `DATABASE_URL` | Internal Database URL de la base PostgreSQL en Render |
+   | `SECRET_KEY`   | Una clave secreta segura para Flask (`os.urandom`, por ejemplo) |
+
+5. Crear una base de datos PostgreSQL en Render desde el panel (+ New → Postgres), y copiar su `Internal Database URL`.
+
+6. Migrar datos desde la base de datos local a Render (puedes usar herramientas como **DBeaver** para transferir las tablas y sus registros).
+
+---
+
+### 🔹 Frontend (Vercel)
+
+1. Subir el proyecto React a GitHub y conectarlo a [Vercel](https://vercel.com/).
+2. En la sección **Environment Variables**, agregar:
+
+   | Clave           | Valor                                              |
+   |-----------------|----------------------------------------------------|
+   | `VITE_API_URL`  | URL pública del backend desplegado en Render (por ejemplo: `https://planificador-api.onrender.com`) |
+
+3. Realizar un nuevo deploy para que tome los cambios.
+
+---
+
+✅ Con esto, tanto backend como frontend estarán desplegados correctamente en la nube y conectados entre sí.
 
 ---
 
