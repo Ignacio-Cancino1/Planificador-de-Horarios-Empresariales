@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+
 import { Home } from './pages/Homee';
 import { Login } from './pages/Login';
 import { Dashboard } from './pages/Dashboard';
@@ -14,27 +15,34 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 
 function App() {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true); // Nuevo estado para controlar la carga
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
-      setUser(JSON.parse(storedUser));
+      const parsedUser = JSON.parse(storedUser);
+
+      // Verificamos si contiene un token válido
+      if (parsedUser.token) {
+        setUser(parsedUser);
+      } else {
+        localStorage.removeItem('user'); // Si no hay token, limpiamos localStorage
+      }
     }
-    setLoading(false); // Marcamos que la carga inicial terminó
+    setLoading(false);
   }, []);
 
   if (loading) {
-    return <div>Cargando...</div>; // Muestra un loader mientras verifica la autenticación
+    return <div>Cargando...</div>;
   }
 
   return (
     <BrowserRouter>
       <Routes>
-        {/* Ruta home pública */}
+        {/* Página de inicio pública */}
         <Route path="/" element={<Home user={user} />} />
-        
-        {/* Ruta login - solo accesible si no está logueado */}
+
+        {/* Página de login - solo visible si no hay sesión activa */}
         <Route 
           path="/login" 
           element={
@@ -48,7 +56,7 @@ function App() {
             )
           } 
         />
-        
+
         {/* Rutas protegidas para ADMIN */}
         <Route element={<ProtectedRoute user={user} requiredRole="admin" />}>
           <Route path="/dashboard" element={<Dashboard user={user} setUser={setUser} />} />
@@ -64,7 +72,7 @@ function App() {
           <Route path="/reportes" element={<ReportsPage />} />
         </Route>
 
-        {/* Ruta para no autorizado */}
+        {/* Página para acceso no autorizado */}
         <Route path="/unauthorized" element={<Unauthorized />} />
       </Routes>
     </BrowserRouter>

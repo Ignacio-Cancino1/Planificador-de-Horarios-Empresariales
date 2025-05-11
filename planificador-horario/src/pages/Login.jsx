@@ -1,6 +1,8 @@
+// src/pages/Login.jsx
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './Login.module.css';
+import { login } from '../services/auth';
 
 export const Login = ({ setUser }) => {
   const [username, setUsername] = useState('');
@@ -8,36 +10,36 @@ export const Login = ({ setUser }) => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const mockUsers = [
-    {
-      email: "admin@gmail.com",
-      password: "2633",
-      role: "admin"
-    },
-    {
-      email: "user@gmail.com",
-      password: "1234",
-      role: "user"
-    }
-  ];
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    const foundUser = mockUsers.find(
-      user => user.email === username && user.password === password
-    );
 
-    if (foundUser) {
-      const userData = { 
-        email: foundUser.email,
-        role: foundUser.role 
+    try {
+      const res = await login({
+        login: username,
+        password: password
+      });
+
+      // 🔍 Normalizamos el rol recibido
+      const userRole = res.rol?.trim().toLowerCase();
+      console.log("✅ Rol recibido del backend:", res.rol, "→ procesado como:", userRole);
+
+      const userData = {
+        email: username,
+        role: userRole,
+        token: res.token,
+        id_usuario: res.id_usuario,
+        id_empleado: res.id_empleado
       };
+
       setUser(userData);
       localStorage.setItem('user', JSON.stringify(userData));
-      navigate(foundUser.role === 'admin' ? '/dashboard' : '/user-dashboard');
-    } else {
-      setError('Credenciales incorrectas');
+
+      // ✅ Redirige de forma segura según rol
+      navigate(userRole === 'admin' ? '/dashboard' : '/user-dashboard');
+
+    } catch (err) {
+      console.error("❌ Error en login:", err.response?.data || err.message);
+      setError('Credenciales incorrectas o error en el servidor');
     }
   };
 
@@ -48,7 +50,7 @@ export const Login = ({ setUser }) => {
       <form onSubmit={handleSubmit}>
         <input
           type="email"
-          placeholder="Correo electrónico"
+          placeholder="Correo electrónico o RUT"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           required

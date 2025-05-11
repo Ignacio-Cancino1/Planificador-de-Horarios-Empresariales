@@ -64,7 +64,11 @@ def login():
         'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=2)
     }, SECRET_KEY, algorithm="HS256")
 
+    # ✅ DEVOLVER ROL, ID Y TOKEN
     return jsonify({
         'mensaje': 'Inicio de sesión exitoso',
+        'rol': usuario.rol,
+        'id_usuario': usuario.id_usuario,
+        'id_empleado': usuario.id_empleado,
         'token': token
     })

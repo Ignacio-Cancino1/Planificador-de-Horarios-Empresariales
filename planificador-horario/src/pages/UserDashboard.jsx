@@ -1,3 +1,4 @@
+// src/pages/UserDashboard.jsx
 import { useNavigate } from 'react-router-dom';
 import styles from './Dashboard.module.css';
 import { FaSignOutAlt, FaCalendarAlt, FaChartBar } from 'react-icons/fa';
@@ -6,12 +7,11 @@ export const UserDashboard = ({ user, setUser }) => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    // Verificación adicional de seguridad
+    localStorage.removeItem('user');   // ✅ Limpia sesión
     if (typeof setUser === 'function') {
       setUser(null);
     }
-    localStorage.removeItem('user');
-    navigate('/');
+    navigate('/login');                // ✅ Redirige al login
   };
 
   const handleViewCalendar = () => {
