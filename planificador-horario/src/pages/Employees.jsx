@@ -1,59 +1,71 @@
-// src/pages/Employees.jsx
-import { useState } from "react";
-import { FaUser, FaEye, FaArrowLeft } from "react-icons/fa";
+import { useEffect, useState } from "react";
+import { FaUser, FaEye, FaArrowLeft, FaPlus } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import styles from "./Employees.module.css";
+import api from "../services/api";
 
 export const Employees = () => {
   const navigate = useNavigate();
+  const [employees, setEmployees] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [newEmployee, setNewEmployee] = useState({
+    nombre: "",
+    apellido: "",
+    email: "",
+    telefono: "",
+    rol: "",
+  });
 
-  // Datos de ejemplo (simulados)
-  const employeesData = [
-    {
-      id: 1,
-      nombre: "Ana",
-      apellido: "López",
-      email: "ana@empresa.com",
-      telefono: "+56912345678",
-      rol: "Gerente",
-      estado: "Activo",
-    },
-    {
-      id: 2,
-      nombre: "Carlos",
-      apellido: "Méndez",
-      email: "carlos@empresa.com",
-      telefono: "+56987654321",
-      rol: "Cajero",
-      estado: "Activo",
-    },
-    {
-      id: 3,
-      nombre: "María",
-      apellido: "González",
-      email: "maria@empresa.com",
-      telefono: "+56955551234",
-      rol: "Supervisor",
-      estado: "Inactivo",
-    },
-  ];
+  const fetchEmployees = async () => {
+    try {
+      const res = await api.get("/empleados");
+      setEmployees(res.data);
+    } catch (error) {
+      console.error("Error al cargar empleados:", error);
+    }
+  };
 
-  const [employees] = useState(employeesData);
+  useEffect(() => {
+    fetchEmployees();
+  }, []);
 
   const handleViewProfile = (employeeId) => {
     navigate(`/empleados/${employeeId}`);
   };
 
+  const handleChange = (e) => {
+    setNewEmployee({ ...newEmployee, [e.target.name]: e.target.value });
+  };
+
+  const handleAddEmployee = async () => {
+    try {
+      await api.post("/empleados", newEmployee);
+      setShowModal(false);
+      setNewEmployee({
+        nombre: "",
+        apellido: "",
+        email: "",
+        telefono: "",
+        rol: "",
+      });
+      fetchEmployees();
+    } catch (err) {
+      console.error("Error al agregar empleado:", err);
+    }
+  };
+
   return (
     <div className={styles.container}>
       <header className={styles.header}>
-        {/* Botón de volver */}
         <button onClick={() => navigate(-1)} className={styles.backButton}>
           <FaArrowLeft /> Volver
         </button>
         <h1>
           <FaUser /> Lista de Empleados
         </h1>
+        <button onClick={() => setShowModal(true)} className={styles.addButton}>
+          <FaPlus /> Agregar Empleado
+        </button>
       </header>
 
       <div className={styles.tableContainer}>
@@ -67,43 +79,77 @@ export const Employees = () => {
               <th>Email</th>
               <th>Teléfono</th>
               <th>Rol</th>
-              <th>Estado</th>
             </tr>
           </thead>
           <tbody>
             {employees.map((employee) => (
-              <tr key={employee.id}>
+              <tr key={employee.id_empleado}>
                 <td>
                   <button
-                    onClick={() => handleViewProfile(employee.id)}
+                    onClick={() => handleViewProfile(employee.id_empleado)}
                     className={styles.profileButton}
-                    aria-label={`Ver perfil de ${employee.nombre}`}
                   >
                     <FaEye />
                   </button>
                 </td>
-                <td>{employee.id}</td>
+                <td>{employee.id_empleado}</td>
                 <td>{employee.nombre}</td>
                 <td>{employee.apellido}</td>
                 <td>{employee.email}</td>
                 <td>{employee.telefono}</td>
                 <td>{employee.rol}</td>
-                <td>
-                  <span
-                    className={`${styles.status} ${
-                      employee.estado === "Activo"
-                        ? styles.active
-                        : styles.inactive
-                    }`}
-                  >
-                    {employee.estado}
-                  </span>
-                </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+
+      {showModal && (
+        <div className={styles.overlay}>
+          <div className={styles.modal}>
+            <h2>Agregar Nuevo Empleado</h2>
+            <input
+              name="nombre"
+              placeholder="Nombre"
+              value={newEmployee.nombre}
+              onChange={handleChange}
+            />
+            <input
+              name="apellido"
+              placeholder="Apellido"
+              value={newEmployee.apellido}
+              onChange={handleChange}
+            />
+            <input
+              name="email"
+              type="email"
+              placeholder="Correo"
+              value={newEmployee.email}
+              onChange={handleChange}
+            />
+            <input
+              name="telefono"
+              placeholder="Teléfono"
+              value={newEmployee.telefono}
+              onChange={handleChange}
+            />
+            <select
+              name="rol"
+              value={newEmployee.rol}
+              onChange={handleChange}
+            >
+              <option value="">Seleccione un rol</option>
+              <option value="admin">Administrador</option>
+              <option value="empleado">Empleado</option>
+
+            </select>
+            <div className={styles.actions}>
+              <button onClick={handleAddEmployee}>Agregar</button>
+              <button onClick={() => setShowModal(false)}>Cancelar</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
