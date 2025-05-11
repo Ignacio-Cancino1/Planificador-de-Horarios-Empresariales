@@ -12,6 +12,7 @@ import { ShiftCalendar } from './pages/ShiftCalendar';
 import { ReportsPage } from './pages/ReportsPage';
 import { Unauthorized } from './pages/Unauthorized';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import { ChangePassword } from './pages/ChangePassword';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -22,11 +23,10 @@ function App() {
     if (storedUser) {
       const parsedUser = JSON.parse(storedUser);
 
-      // Verificamos si contiene un token válido
       if (parsedUser.token) {
         setUser(parsedUser);
       } else {
-        localStorage.removeItem('user'); // Si no hay token, limpiamos localStorage
+        localStorage.removeItem('user');
       }
     }
     setLoading(false);
@@ -39,25 +39,19 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Página de inicio pública */}
         <Route path="/" element={<Home user={user} />} />
 
-        {/* Página de login - solo visible si no hay sesión activa */}
         <Route 
           path="/login" 
           element={
-            user ? (
-              <Navigate 
-                to={user.role === 'admin' ? '/dashboard' : '/user-dashboard'} 
-                replace 
-              />
-            ) : (
-              <Login setUser={setUser} />
-            )
-          } 
+            user
+              ? user.requiere_cambio_clave
+                ? <Navigate to="/cambiar-clave" replace />
+                : <Navigate to={user.role === 'admin' ? '/dashboard' : '/user-dashboard'} replace />
+              : <Login setUser={setUser} />
+          }
         />
 
-        {/* Rutas protegidas para ADMIN */}
         <Route element={<ProtectedRoute user={user} requiredRole="admin" />}>
           <Route path="/dashboard" element={<Dashboard user={user} setUser={setUser} />} />
           <Route path="/empleados" element={<Employees />} />
@@ -65,14 +59,13 @@ function App() {
           <Route path="/asignar-turno" element={<AssignShift />} />
         </Route>
 
-        {/* Rutas protegidas para USUARIO */}
         <Route element={<ProtectedRoute user={user} />}>
           <Route path="/user-dashboard" element={<UserDashboard user={user} setUser={setUser} />} />
           <Route path="/calendario-turnos" element={<ShiftCalendar />} />
           <Route path="/reportes" element={<ReportsPage />} />
         </Route>
 
-        {/* Página para acceso no autorizado */}
+        <Route path="/cambiar-clave" element={<ChangePassword />} />
         <Route path="/unauthorized" element={<Unauthorized />} />
       </Routes>
     </BrowserRouter>

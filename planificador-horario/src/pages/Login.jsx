@@ -1,4 +1,3 @@
-// src/pages/Login.jsx
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './Login.module.css';
@@ -12,6 +11,7 @@ export const Login = ({ setUser }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
 
     try {
       const res = await login({
@@ -19,9 +19,17 @@ export const Login = ({ setUser }) => {
         password: password
       });
 
-      // 🔍 Normalizamos el rol recibido
       const userRole = res.rol?.trim().toLowerCase();
-      console.log("✅ Rol recibido del backend:", res.rol, "→ procesado como:", userRole);
+      console.log("✅ Rol:", res.rol);
+      console.log("🧪 Requiere cambio clave:", res.requiere_cambio_clave);
+
+      // Si se requiere cambio de clave, redirige sin guardar sesión
+      if (res.requiere_cambio_clave) {
+        navigate('/cambiar-clave', {
+          state: { id_usuario: res.id_usuario }
+        });
+        return; // 👈 importante para que no siga ejecutando el resto
+      }
 
       const userData = {
         email: username,
@@ -34,7 +42,7 @@ export const Login = ({ setUser }) => {
       setUser(userData);
       localStorage.setItem('user', JSON.stringify(userData));
 
-      // ✅ Redirige de forma segura según rol
+      // Redirige según el rol
       navigate(userRole === 'admin' ? '/dashboard' : '/user-dashboard');
 
     } catch (err) {
