@@ -16,7 +16,6 @@ export const AssignShift = () => {
   const [successMessage, setSuccessMessage] = useState('');
   const navigate = useNavigate();
 
-  // Cargar empleados y turnos desde el backend
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -85,7 +84,7 @@ export const AssignShift = () => {
           >
             <option value="">Seleccione un empleado</option>
             {employees.map(emp => (
-              <option key={emp.id} value={emp.id}>
+              <option key={emp.id_empleado} value={emp.id_empleado}>
                 {emp.nombre} {emp.apellido} ({emp.rol})
               </option>
             ))}

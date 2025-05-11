@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { FaUser, FaEye, FaArrowLeft, FaPlus } from "react-icons/fa";
+import { FaUser, FaEye, FaArrowLeft, FaPlus, FaTrash } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import styles from "./Employees.module.css";
 import api from "../services/api";
@@ -54,6 +54,20 @@ export const Employees = () => {
     }
   };
 
+  const handleDelete = async (id) => {
+    if (!id || typeof id !== "number") {
+      console.error("ID inválido al intentar eliminar:", id);
+      return;
+    }
+
+    try {
+      await api.delete(`/empleados/${id}`);
+      setEmployees((prev) => prev.filter((e) => e.id_empleado !== id));
+    } catch (error) {
+      console.error("Error al eliminar empleado:", error);
+    }
+  };
+
   return (
     <div className={styles.container}>
       <header className={styles.header}>
@@ -79,6 +93,7 @@ export const Employees = () => {
               <th>Email</th>
               <th>Teléfono</th>
               <th>Rol</th>
+              <th>Acciones</th>
             </tr>
           </thead>
           <tbody>
@@ -98,6 +113,14 @@ export const Employees = () => {
                 <td>{employee.email}</td>
                 <td>{employee.telefono}</td>
                 <td>{employee.rol}</td>
+                <td>
+                  <button
+                    onClick={() => handleDelete(employee.id_empleado)}
+                    className={styles.deleteButton}
+                  >
+                    <FaTrash />
+                  </button>
+                </td>
               </tr>
             ))}
           </tbody>
@@ -141,7 +164,6 @@ export const Employees = () => {
               <option value="">Seleccione un rol</option>
               <option value="admin">Administrador</option>
               <option value="empleado">Empleado</option>
-
             </select>
             <div className={styles.actions}>
               <button onClick={handleAddEmployee}>Agregar</button>

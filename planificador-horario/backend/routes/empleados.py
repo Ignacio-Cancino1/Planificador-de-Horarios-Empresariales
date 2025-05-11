@@ -12,7 +12,7 @@ def get_empleados():
     resultado = []
     for e in empleados:
         resultado.append({
-            'id': e.id_empleado,
+            'id_empleado': e.id_empleado,  # 👈 clave corregida
             'nombre': e.nombre,
             'apellido': e.apellido,
             'email': e.email,
@@ -21,13 +21,12 @@ def get_empleados():
         })
     return jsonify(resultado)
 
-# Obtener un solo empleado por ID
-@empleados_bp.route('/api/empleados/<int:id>', methods=['GET', 'OPTIONS'])  # ✅
+@empleados_bp.route('/api/empleados/<int:id>', methods=['GET', 'OPTIONS'])
 @admin_required
 def get_empleado(id):
     empleado = Empleado.query.get_or_404(id)
     return jsonify({
-        'id': empleado.id_empleado,
+        'id_empleado': empleado.id_empleado,  # 👈 clave corregida
         'nombre': empleado.nombre,
         'apellido': empleado.apellido,
         'email': empleado.email,
