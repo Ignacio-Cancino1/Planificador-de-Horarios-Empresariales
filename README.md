@@ -63,25 +63,57 @@ Verifica que `config.py` importe:
 
 ## 🏗️ Estructura del Proyecto
 
-```
-src/
+📁 src/                         # Frontend (React)
 ├── pages/
-│   ├── Login.jsx           → Autenticación y redirección por rol o cambio de contraseña
-│   ├── ChangePassword.jsx  → Cambio obligatorio de contraseña
-│   ├── Dashboard.jsx       → Panel de administración
-│   ├── UserDashboard.jsx   → Vista de empleados
-│   ├── Employees.jsx       → Gestión de empleados
-│   ├── ShiftCalendar.jsx   → Calendario de turnos compartido
-│   └── ReportsPage.jsx     → Generación de reportes en PDF
-└── App.jsx                 → Ruteo y protección de rutas
-```
+│   ├── AssignShift.jsx              → Asignación de turnos (admin)
+│   ├── ChangePassword.jsx          → Cambio obligatorio de contraseña
+│   ├── Dashboard.jsx               → Panel general de administrador
+│   ├── EmployeeProfile.jsx         → Perfil individual del empleado
+│   ├── Employees.jsx               → Gestión de empleados
+│   ├── Homee.jsx                   → Pantalla de inicio
+│   ├── Login.jsx                   → Formulario de acceso
+│   ├── ReportsPage.jsx             → Visualización y descarga de reportes
+│   ├── ShiftCalendar.jsx           → Calendario con turnos asignados
+│   ├── Unauthorized.jsx            → Acceso denegado (por rol)
+│   └── UserDashboard.jsx           → Panel de vista del empleado
+└── App.jsx                         → Definición de rutas y protección por rol
+
+📁 backend/                    # Backend (Flask API)
+├── app.py                         → Punto de entrada principal del servidor Flask
+├── config.py                      → Configuración general del entorno (SECRET_KEY, DB, etc.)
+├── server.js                      → Adaptación para deploy (opcional si lo usas)
+├── .env                           → Variables de entorno
+│
+├── models/                        → Definición de modelos de base de datos
+│   ├── models.py
+│   └── __init__.py
+│
+├── controllers/                  → Controladores (lógica para cada recurso)
+│   └── (faltan en la imagen pero deberían estar aquí si usas lógica separada)
+│
+├── routes/                        → Definición de endpoints
+│   ├── asignaciones.py
+│   ├── disponibilidad.py
+│   ├── empleados.py
+│   ├── notificaciones.py
+│   ├── reportes.py
+│   ├── turnos.py
+│   └── usuarios.py
+│
+├── middlewares/                  → Funciones para protección de rutas
+│   └── auth.py
+│
+├── venv/                          → Entorno virtual de Python
+├── package.json                   → Dependencias (solo si integras Node o Vite aquí)
+└── requirements.txt               → Librerías necesarias para instalar el backend
 
 ---
 
 ## 🔐 Autenticación y Seguridad
 
-- Login con email o RUT  
-- Tokens JWT firmados y verificados  
+- Login con email  
+- Tokens JWT firmados y verificados
+- Para cada usuario nuevo creado su contraseña es cambiar123
 - Campo `requiere_cambio_clave` obliga a cambiar la contraseña en el primer login  
 - Rutas protegidas por rol (`admin_required` y `token_required`)  
 - Clave secreta gestionada desde `.env`  
